@@ -87,3 +87,27 @@ def add_region():
     db.session.add(region)
     db.session.commit()
     return {"message": f"Region added with NOC= {region.NOC}"}
+
+@app.delete('/events/<int:event_id>')
+def delete_event(event_id):
+    """ Deletes the event with the given id.
+
+    :param event_id: The id of the event to delete
+    :returns: JSON"""
+    event = db.session.execute(db.select(Event).filter_by(id=event_id)).scalar_one()
+    db.session.delete(event)
+    db.session.commit()
+    return {"message": f"Event {event_id} deleted"}
+
+
+@app.delete('/regions/<noc_code>')
+def delete_region(noc_code):
+    """ Deletes the region with the given code.
+
+    <noc_code> is the NOC code of the region to delete.
+
+    :returns: JSON"""
+    region = db.session.execute(db.select(Region).filter_by(NOC=noc_code)).scalar_one()
+    db.session.delete(region)
+    db.session.commit()
+    return {"message": f"Region {noc_code} deleted"}
