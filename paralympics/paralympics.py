@@ -1,4 +1,4 @@
-from flask import current_app as app, request
+from flask import current_app as app, request, make_response
 from paralympics import db
 from paralympics.models import Region, Event
 from paralympics.schemas import RegionSchema, EventSchema
@@ -111,3 +111,55 @@ def delete_region(noc_code):
     db.session.delete(region)
     db.session.commit()
     return {"message": f"Region {noc_code} deleted"}
+
+@app.patch("/events/<event_id>")
+def event_update(event_id):
+    """
+    Updates changed fields for the event.
+
+    """
+    # Find the event in the database
+    existing_event = db.session.execute(
+        db.select(Event).filter_by(event_id=event_id)
+    ).scalar_one_or_none()
+    # Get the updated details from the json sent in the HTTP patch request
+    event_json = request.get_json()
+    # Use Marshmallow to update the existing records with the changes from the json
+    event_updated = event_schema.load(event_json, instance=existing_event, partial=True)
+    # Commit the changes to the database
+    db.session.add(event_updated)
+    db.session.commit()
+    # Return json showing the updated record
+    updated_event = db.session.execute(
+        db.select(Event).filter_by(event_id=event_id)
+    ).scalar_one_or_none()
+    result = event_schema.jsonify(updated_event)
+    response = make_response(result, 200)
+    response.headers["Content-Type"] = "application/json"
+    return response
+
+
+@app.patch("/regions/<noc_code>")
+def region_update(noc_code):
+    """Updates changed fields for the region.
+
+    """
+    # Find the region in the database
+    existing_region = db.session.execute(
+        db.select(Region).filter_by(NOC=noc_code)
+    ).scalar_one_or_none()
+    # Get the updated details from the json sent in the HTTP patch request
+    region_json = request.get_json()
+    # Use Marshmallow to update the existing records with the changes from the json
+    region_updated = region_schema.load(region_json, instance=existing_region, partial=True)
+    # Commit the changes to the database
+    db.session.add(region_updated)
+    db.session.commit()
+    # Return json showing the updated record
+    updated_region = db.session.execute(
+        db.select(Region).filter_by(NOC=noc_code)
+    ).scalar_one_or_none()
+    result = region_schema.jsonify(updated_region)
+    response = make_response(result, 200)
+    response.headers["Content-Type"] = "application/json"
+    return response
