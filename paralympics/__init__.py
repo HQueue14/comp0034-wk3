@@ -4,8 +4,8 @@ from pathlib import Path
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase
 from flask_marshmallow import Marshmallow
+from sqlalchemy.orm import DeclarativeBase
 
 
 # https://flask-sqlalchemy.palletsprojects.com/en/3.1.x/quickstart/
@@ -18,7 +18,6 @@ class Base(DeclarativeBase):
 db = SQLAlchemy(model_class=Base)
 
 # Create a global SQLAlchemy object
-db = SQLAlchemy()
 # Create a global Flask-Marshmallow object
 ma = Marshmallow()
 
@@ -49,6 +48,9 @@ def create_app(test_config=None):
 
     # Initialise Flask with the SQLAlchemy database extension
     db.init_app(app)
+    
+    # Initialise Flask-Marshmallow
+    ma.init_app(app)
 
     # Models are defined in the models module, so you must import them before calling create_all, otherwise SQLAlchemy
     # will not know about them.
@@ -64,11 +66,6 @@ def create_app(test_config=None):
         # Register the routes with the app in the context
         from paralympics import paralympics
     
-    # Initialise Flask-SQLAlchemy
-    db.init_app(app)
-    # Initialise Flask-Marshmallow
-    ma.init_app(app)
-
     return app
 
 
@@ -121,5 +118,3 @@ def add_data_from_csv():
 
 # Import can be here instead (but not at the top of the file) to avoid circular import issues
 from paralympics.models import Region, Event, User
-
-

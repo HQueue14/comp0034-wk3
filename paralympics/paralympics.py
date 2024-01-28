@@ -1,7 +1,8 @@
 from flask import current_app as app
+from paralympics import db
 from paralympics.models import Region, Event
 from paralympics.schemas import RegionSchema, EventSchema
-from paralympics import db, ma
+
 
 # Flask-Marshmallow Schemas
 regions_schema = RegionSchema(many=True)
@@ -15,7 +16,7 @@ def hello():
 
 @app.get("/regions")
 def get_regions():
-    """Returns a list of NOC regions and their details in JSON."""
+    """Returns a list of NOC region codes and their details in JSON."""
     # Select all the regions using Flask-SQLAlchemy
     all_regions = db.session.execute(db.select(Region)).scalars()
     # Get the data using Marshmallow schema (returns JSON)
