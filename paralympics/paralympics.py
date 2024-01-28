@@ -24,6 +24,16 @@ def get_regions():
     # Return the data
     return result
 
+@app.get("/events")
+def get_events():
+    """Returns a list of events and their details in JSON.
+
+    :returns: JSON
+    """
+    all_events = db.session.execute(db.select(Event)).scalars()
+    result = events_schema.dump(all_events)
+    return result
+
 @app.get("/events/<event_id>")
 def event_id(event_id):
     """ Returns the event with the given id JSON.
